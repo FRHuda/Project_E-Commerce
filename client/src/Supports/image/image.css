@@ -1,0 +1,31 @@
+.welcome-image {
+    height: 650px;
+    background-image: url(./welcome2.jpg);
+    background-repeat:no-repeat; 
+    background-position:center; 
+    background-size:cover;
+
+    /* background-image: url('https://png.pngtree.com/thumb_back/fw800/back_pic/03/54/32/205799f0df5cd0d.jpg'); */
+}
+
+.blaptop {
+    background-image: url(./laptop.jpg);
+    background-repeat:no-repeat; 
+    background-position:center; 
+    background-size:cover;
+}
+.bcomponents {
+    background-image: url(./ssd.jpg);
+    background-repeat:no-repeat; 
+    background-position:center; 
+    background-size:cover;
+}
+.baccesories {
+    background-image: url(./headphone.jpg);
+    background-repeat:no-repeat; 
+    background-position:center; 
+    background-size:cover;
+}
+.breadcumbimage {
+    background-image: url(./breadcumb.jpg);
+}
