@@ -69,6 +69,7 @@ class Header extends Component {
                             Halo,
                         </DropdownItem>
                         <DropdownItem>{this.props.auth.username}</DropdownItem>
+                        <DropdownItem href='/transaction'>Transaction</DropdownItem>
                         <div class="dropdown-divider" />
                         <DropdownItem onClick={this.onLogOutClick}>
                             LogOut

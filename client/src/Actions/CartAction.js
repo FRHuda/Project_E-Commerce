@@ -84,11 +84,8 @@ export const submitOrder = (idUser, cart, billingAddress) => {
             cart,
             billingAddress
         }).then(res => {
-            console.log(res);
             axios.delete(`${API_URL_MYSQL}/deletecartorder/${idUser}`)
                 .then(res => {
-                    console.log('From Delete');
-                    console.log(res);
                     dispatch({
                         type: 'SUBMIT_SUCCESS'
                     })
