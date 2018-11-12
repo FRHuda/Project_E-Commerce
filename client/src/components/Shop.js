@@ -369,7 +369,6 @@ class Shop extends Component {
                             <div class="col-12">
                                 <div class="page-title text-center">
                                     <h2>{this.renderTitle()}</h2>
-                                    <input type="button" value="Cek" onClick={() => console.log(this.state)} />
                                 </div>
                             </div>
                         </div>
