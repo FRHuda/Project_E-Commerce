@@ -4,8 +4,13 @@ const INITIAL_STATE = {
     idUser: 0,
     error: '',
     statusId: 0,
+    phone: null,
     cookieCheck: false,
-    loading: false
+    loading: false,
+    birthday: '',
+    editProfile: false,
+    editAlamat: false,
+    alamat: ''
 };
 
 export default (state = INITIAL_STATE, action) => {
@@ -20,6 +25,14 @@ export default (state = INITIAL_STATE, action) => {
             return { ...state, cookieCheck: true, loading: false };
         case "LOADING":
             return { ...state, loading: true }
+        case "EDIT_PROFILE":
+            return { ...state, editProfile: true };
+        case "EDIT_PROFILE_SUCCESS":
+            return { ...state, editProfile: false };
+        case "EDIT_ALAMAT":
+            return { ...state, editAlamat: true };
+        case "EDIT_ALAMAT_SUCCESS":
+            return { ...state, editAlamat: false };
         default:
             return state;
     }

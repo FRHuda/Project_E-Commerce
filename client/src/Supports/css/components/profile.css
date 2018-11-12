@@ -1,0 +1,123 @@
+.card-style, .dashboard-section {
+    border: 0;
+    background: #fff;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  }
+  
+  .dashboard-outer {
+    height: 100%;
+    width: 100%;
+  }
+  
+  .dashboard-sidebar {
+    position: fixed;
+    width: 300px;
+    height: 100%;
+    background-color: white;
+    overflow: scroll;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
+  }
+  .dashboard-sidebar .dashboard-brand-outer {
+    background-color: #306E79;
+    width: 100%;
+    height: 150px;
+    /* fallback */
+    background-color: #306E79;
+    background-position: center center;
+    background-repeat: no-repeat;
+    /* Safari 4-5, Chrome 1-9 */
+    /* Can't specify a percentage size? Laaaaaame. */
+    background: -webkit-gradient(radial, center center, 0, center center, 460, from(#306E79), to(#24535c));
+    /* Safari 5.1+, Chrome 10+ */
+    background: -webkit-radial-gradient(circle, #306E79, #24535c);
+    /* Firefox 3.6+ */
+    background: -moz-radial-gradient(circle, #306E79, #24535c);
+    /* IE 10 */
+    background: -ms-radial-gradient(circle, #306E79, #24535c);
+    /* Opera couldn't do radial gradients, then at some point they started supporting the -webkit- syntax, how it kinda does but it's kinda broken (doesn't do sizing) */
+  }
+  .dashboard-sidebar .dashboard-brand-outer .dashboard-brand {
+    width: 120px;
+    position: relative;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+  .dashboard-sidebar .dashboard-nav-outer {
+    width: 100%;
+  }
+  .dashboard-sidebar .dashboard-nav {
+    padding-left: 0;
+  }
+  .dashboard-sidebar .dashboard-nav-item {
+    list-style-type: none;
+    padding: 25px 15px;
+    padding-left: 35px;
+    font-size: 1.2em;
+  }
+  .dashboard-sidebar .dashboard-nav-item:hover {
+    background-color: rgba(48, 110, 121, 0.1);
+  }
+  .dashboard-sidebar .dashboard-nav-item a {
+    color: #5d5d5d;
+    font-weight: light;
+    text-decoration: none;
+  }
+  
+  .is-active {
+    border-bottom: 1px solid #306E79;
+    background-color: rgba(48, 110, 121, 0.1);
+  }
+  
+  .has-icon:before {
+    position: relative;
+    font-family: "fontAwesome";
+    font-style: normal;
+    font-weight: normal;
+    text-decoration: inherit;
+    padding-right: 15px;
+    color: #9d9d9d;
+  }
+  
+  .dash-profile:before {
+    content: '\f007';
+  }
+  
+  .dash-history:before {
+    content: '\f1da';
+  }
+  
+  .dash-payments:before {
+    content: '\f09d';
+  }
+  
+  .dash-settings:before {
+    content: '\f1de';
+  }
+  
+  .dash-activity:before {
+    content: '\f022';
+  }
+  
+  .dashboard-main {
+    height: 100%;
+    width: calc(100% - 300px);
+    padding-left: 25px;
+    padding-right: 25px;
+    margin-top: 25px;
+    float: right;
+  }
+  .dashboard-main .section-header {
+    font-weight: 100;
+    border-left: 6px solid #306E79;
+    padding-left: 15px;
+    margin-bottom: 25px;
+  }
+  .dashboard-main .main-titles {
+    color: #306E79;
+  }
+  
+  .dashboard-section {
+    margin-bottom: 25px;
+  }
+  

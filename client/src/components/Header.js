@@ -7,7 +7,9 @@ import {
     UncontrolledDropdown
 } from 'reactstrap';
 import { connect } from 'react-redux';
-import { onLogOut, keepLogin, showCart } from '../Actions';
+import { onLogOut, keepLogin, showCart, getAddress } from '../Actions';
+import axios from 'axios';
+import { API_URL_MYSQL } from '../Supports/api-url/apiurl';
 
 
 // IMPORT COMPONENT
@@ -20,6 +22,20 @@ import '../Supports/css/components/search.css';
 
 
 class Header extends Component {
+    state = { subcategory: [] }
+
+    componentWillMount() {
+        axios.get(`${API_URL_MYSQL}/render/subcategory`)
+            .then(data => {
+                this.setState({ subcategory: data.data });
+            }).catch(err => {
+                console.log(err);
+            });
+
+        if (this.props.auth.username !== '') {
+            this.props.getAddress(this.props.auth.idUser);
+        }
+    }
 
 
     onLogOutClick = () => {
@@ -45,12 +61,9 @@ class Header extends Component {
                     </DropdownToggle>
                     <DropdownMenu right>
                         <DropdownItem style={{ fontSize: 11 }} header>
-                            Halo,
+                            Halo Admin,
                         </DropdownItem>
-                        <DropdownItem>{this.props.auth.username}</DropdownItem>
-                        <DropdownItem>
-                            <Link to="/admin">Admin</Link>
-                        </DropdownItem>
+                        <DropdownItem href='/profile'>{this.props.auth.username}</DropdownItem>
                         <div class="dropdown-divider" />
                         <DropdownItem onClick={this.onLogOutClick}>
                             LogOut
@@ -68,8 +81,7 @@ class Header extends Component {
                         <DropdownItem style={{ fontSize: 11 }} header>
                             Halo,
                         </DropdownItem>
-                        <DropdownItem>{this.props.auth.username}</DropdownItem>
-                        <DropdownItem href='/transaction'>Transaction</DropdownItem>
+                        <DropdownItem href='/profile'>{this.props.auth.username}</DropdownItem>
                         <div class="dropdown-divider" />
                         <DropdownItem onClick={this.onLogOutClick}>
                             LogOut
@@ -79,6 +91,16 @@ class Header extends Component {
             );
         }
     };
+
+    renderSubCategory = (id) => {
+        return this.state.subcategory.map(item => {
+            if (item.CategoryId === id) {
+                return (
+                    <DropdownItem href={`/shop?subcategory=${item.Name}`}>{item.Name}</DropdownItem>
+                )
+            }
+        })
+    }
 
     renderNavbar = () => {
         if (this.props.auth.username !== '') {
@@ -111,47 +133,23 @@ class Header extends Component {
                                     <DropdownMenu style={{ marginLeft: '-65px', width: '1520px' }}>
                                         <div className="d-flex">
                                             <div className="col-3">
-                                                <div Header className="justify-content-center d-flex">Brand</div>
+                                                <div Header className="justify-content-center d-flex">Computer</div>
                                                 <div class="dropdown-divider" />
-                                                <DropdownItem href="/shop?brand=Asus">
-                                                    Asus
-                                                </DropdownItem>
-                                                <DropdownItem href="/shop?brand=Acer">
-                                                    Acer
-                                                </DropdownItem>
-                                                <DropdownItem href="/shop?brand=MSI">
-                                                    MSI
-                                                </DropdownItem>
+                                                {this.renderSubCategory(1)}
                                             </div>
                                             <div className="col-3">
                                                 <div Header className="justify-content-center d-flex">Component</div>
                                                 <div class="dropdown-divider" />
-                                                <DropdownItem href='/shop?subcategory=HardDisk'>
-                                                    HardDisk
-                                                </DropdownItem>
-                                                <DropdownItem href='/shop?subcategory=VGA'>
-                                                    VGA
-                                                </DropdownItem>
-                                                <DropdownItem href='/shop?subcategory=RAM'>
-                                                    RAM
-                                                </DropdownItem>
+                                                {this.renderSubCategory(2)}
                                             </div>
                                             <div className="col-3">
                                                 <div Header className="justify-content-center d-flex">Accecories</div>
                                                 <div class="dropdown-divider" />
-                                                <DropdownItem href='/shop?subcategory=Charger'>
-                                                    Charger
-                                                </DropdownItem>
-                                                <DropdownItem href='/shop?subcategory=Headphone'>
-                                                    Headphone
-                                                </DropdownItem>
-                                                <DropdownItem href='/shop?subcategory=Keyboard'>
-                                                    Keyboard
-                                                </DropdownItem>
+                                                {this.renderSubCategory(3)}
                                             </div>
-                                            <div className="col-3">
+                                            {/* <div className="col-3">
                                                 <img src="https://images-na.ssl-images-amazon.com/images/I/41KIZ8g7gFL.jpg" alt="" />
-                                            </div>
+                                            </div> */}
                                         </div>
                                     </DropdownMenu>
                                 </UncontrolledDropdown>
@@ -178,7 +176,7 @@ class Header extends Component {
                                             {this.props.cart.cart.length}
                                         </span>
                                     </DropdownToggle>
-                                    <DropdownMenu style={{ marginLeft: '-240px' }}>
+                                    <DropdownMenu style={{ marginLeft: '-290px', width: "400px", maxHeight: "450px" }}>
                                         <CartTable />
                                     </DropdownMenu>
                                 </UncontrolledDropdown>
@@ -310,5 +308,5 @@ const mapStateToProps = state => {
 
 export default connect(
     mapStateToProps,
-    { onLogOut, keepLogin, showCart }
+    { onLogOut, keepLogin, showCart, getAddress }
 )(Header);

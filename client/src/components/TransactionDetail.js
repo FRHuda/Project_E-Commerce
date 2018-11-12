@@ -11,15 +11,22 @@ class TransactionDetail extends Component {
         this.props.addState(item);
     }
 
+    numberWithCommas = (x) => {
+        return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+    }
+
     render() {
         return (
-            <div>
-                <tr onClick={() => this.open(this.props.item.cart)} >
-                    <td>{this.props.item.billingAddress.date}</td>
-                    <td>{this.props.item.billingAddress.address}</td>
-                    <td>{this.props.item.billingAddress.phone}</td>
-                </tr>
-            </div>
+            <tr onClick={() => this.open(this.props.item.cart)} >
+                <td>{this.props.item.billingAddress.date}</td>
+                <td>{this.props.item.billingAddress.name}</td>
+                <td>{this.props.item.billingAddress.address}</td>
+                <td>{this.props.item.billingAddress.city}, {this.props.item.billingAddress.province}</td>
+                <td>{this.props.item.billingAddress.postcode}</td>
+                <td>{this.props.item.billingAddress.phone}</td>
+                <td>Rp {this.numberWithCommas(this.props.item.totalPrice)}</td>
+                <td>{this.props.item.billingAddress.via}</td>
+            </tr>
         )
     }
 }

@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import axios from 'axios';
 import { connect } from 'react-redux';
-import { Redirect } from 'react-router-dom';
 import queryString from 'query-string';
 import { UncontrolledCollapse } from 'reactstrap';
 import { addToCart } from '../Actions';
@@ -9,12 +8,12 @@ import { API_URL_MYSQL } from '../Supports/api-url/apiurl';
 
 
 class Shop extends Component {
-    state = { data: [], brand: [], category: [], subcategory: [] };
+    state = { data: [], dataRender: [], brand: [], category: [], subcategory: [], page: 1 };
 
 
     componentWillMount() {
         let params = queryString.parse(this.props.location.search);
-        const { category, brand, subcategory, search } = params;
+        const { category, brand, subcategory, search, page } = params;
 
         axios.get(`${API_URL_MYSQL}/render/category`)
             .then(data => {
@@ -39,45 +38,111 @@ class Shop extends Component {
 
         axios.get(`${API_URL_MYSQL}/shop?category=${category}&brand=${brand}&subcategory=${subcategory}&search=${search}`)
             .then(data => {
+                this.setState({ totalPage: Math.ceil(data.data.length / 9) });
                 this.setState({ data: data.data });
+                this.setStateData(this.state.page);
             })
             .catch(err => {
                 console.log(err);
             });
 
+        if (page !== undefined) {
+            this.setState({ page: page });
+        }
+    }
 
+    numberWithCommas = (x) => {
+        return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+    }
 
+    setStateData = (halaman) => {
+        var dataTemp = this.state.data;
+        var hasil = [];
+        var j = 0;
+        if (halaman > 1 && halaman !== this.state.totalPage) {
+            j = (halaman * 10) - 10 - (halaman - 1);
+        }
+        if (halaman == this.state.totalPage) {
+            for (var i = j; i < dataTemp.length; i++) {
+                hasil.push(dataTemp[i]);
+            }
+        }
+        else if (halaman !== this.state.totalPage) {
+            for (var i = j; i < (halaman * 10) - halaman; i++) {
+                hasil.push(dataTemp[i]);
+            }
+        }
+        this.setState({ dataRender: hasil });
 
     }
 
     cekLogIn = (idUser, idProduct) => {
         if (idUser === 0) {
             alert('You Must Log In First');
-            return <Redirect to='/login' />;
+            return window.location.href = '/login';
         }
         else {
             this.props.addToCart(idUser, idProduct);
         }
     }
 
+    sortLowPrice = () => {
+        var tampung = this.state.data;
+        tampung.sort(function (a, b) {
+            return a.Price - b.Price;
+        });
+        this.setState({ data: tampung });
+        this.setStateData(this.state.page);
+
+    }
+
+    sortHighPrice = () => {
+        var tampung = this.state.data;
+        tampung.sort(function (a, b) {
+            return b.Price - a.Price;
+        });
+        this.setState({ data: tampung });
+        this.setStateData(this.state.page);
+    }
+
+    sortNewest = () => {
+        var tampung = this.state.data;
+        tampung.sort(function (a, b) {
+            return b.Id - a.Id;
+        });
+        this.setState({ data: tampung });
+        this.setStateData(this.state.page);
+    }
+
+    sortOldest = () => {
+        var tampung = this.state.data;
+        var hasil = tampung.sort(function (a, b) {
+            return a.Id - b.Id;
+        });
+        this.setState({ data: hasil });
+        this.setStateData(this.state.page);
+    }
+
     // RENDER FUNCTION
     renderSingleProduct = () => {
-        if (this.state.data == '') {
+        if (this.state.dataRender.length == 0) {
             return <h1>Please Wait</h1>
         }
         else {
-            return this.state.data.map(item => {
-                if (item !== '') {
+            return this.state.dataRender.map(item => {
+                if (item !== undefined) {
                     return (
                         <div class="col-12 col-sm-6 col-lg-4">
                             <div class="single-product-wrapper">
                                 {/* <!-- Product Image --> */}
-                                <div class="product-img">
-                                    {/* <img src={require('../Supports/image/acer-nitro-5.jpg')} alt=""/> */}
-                                    <img src={item.Img} alt="" style={{ width: "250px", height: "230px" }} />
-                                    {/* <!-- Hover Thumb --> */}
-                                    <img class="hover-img" style={{ borderStyle: "outset", width: "250px", height: "230px" }} src={item.Img} alt="" />
-                                </div>
+                                <a href={`/productdetail?productId=${item.Id}`}>
+                                    <div class="product-img">
+                                        {/* <img src={require('../Supports/image/acer-nitro-5.jpg')} alt=""/> */}
+                                        <img src={item.Img} alt="" style={{ width: "250px", height: "230px" }} />
+                                        {/* <!-- Hover Thumb --> */}
+                                        <img class="hover-img" style={{ borderStyle: "outset", width: "250px", height: "230px" }} src={item.Img} alt="" />
+                                    </div>
+                                </a>
 
                                 {/* <!-- Product Description --> */}
                                 <div class="product-description">
@@ -85,14 +150,12 @@ class Shop extends Component {
                                     <a href="single-product-details.html">
                                         <h6>{item.Name}</h6>
                                     </a>
-                                    <p class="product-price">{item.Price}</p>
+                                    <p class="product-price">Rp {this.numberWithCommas(item.Price)}</p>
                                     {/* <!-- Hover Content --> */}
                                     <div class="hover-content">
                                         {/* <!-- Add to Cart --> */}
                                         <div class="add-to-cart-btn">
-                                            <a class="btn essence-btn" onClick={() => { this.cekLogIn(this.props.auth.idUser, item.Id) }}>
-                                                Add to Cart
-                                            </a>
+                                            <input type="button" class="btn essence-btn" value="Add to cart" onClick={() => { this.cekLogIn(this.props.auth.idUser, item.Id) }} />
                                         </div>
                                     </div>
                                 </div>
@@ -161,6 +224,131 @@ class Shop extends Component {
         })
     }
 
+    renderPagination = () => {
+        let params = queryString.parse(this.props.location.search);
+        const { category, brand, subcategory, search, page } = params;
+        var isi = '';
+        if (category !== undefined) {
+            isi = `?category=${category}`;
+        }
+        else if (brand !== undefined) {
+            isi = `?brand=${brand}`;
+        }
+        else if (subcategory !== undefined) {
+            isi = `?subcategory=${subcategory}`;
+        }
+        else if (search !== undefined) {
+            isi = `?search=${search}`;
+        }
+        else {
+            isi = `?`;
+        }
+        var thisUrl = this.props.location.pathname + isi;
+
+        if (this.state.page == 1 && this.state.page === this.state.totalPage) {
+            return (
+                <ul class="pagination mt-50 mb-70">
+                    <li class="page-item disabled">
+                        <a class="page-link" href={`${thisUrl}`}>
+                            <i class="fa fa-angle-left" />
+                        </a>
+                    </li>
+                    <li class="page-item disabled">
+                        <a class="page-link" href={`${thisUrl}`}>1</a>
+                    </li>
+                    <li class="page-item disabled">
+                        <a class="page-link" href={`${thisUrl}`}>
+                            <i class="fa fa-angle-right" />
+                        </a>
+                    </li>
+                </ul>
+            )
+        }
+        else if (this.state.page == 1 && this.state.page !== this.state.totalPage) {
+            return (
+                <ul class="pagination mt-50 mb-70">
+                    <li class="page-item disabled">
+                        <a class="page-link" href={`${thisUrl}&page=${parseInt(this.state.page) - 1}`}>
+                            <i class="fa fa-angle-left" />
+                        </a>
+                    </li>
+                    {this.renderPageDetail(this.state.totalPage)}
+                    <li class="page-item">
+                        <a class="page-link" href={`${thisUrl}&page=${parseInt(this.state.page) + 1}`}>
+                            <i class="fa fa-angle-right" />
+                        </a>
+                    </li>
+                </ul>
+            )
+        }
+        else if (this.state.page == this.state.totalPage) {
+            return (
+                <ul class="pagination mt-50 mb-70">
+                    <li class="page-item">
+                        <a class="page-link" href={`${thisUrl}&page=${parseInt(this.state.page) - 1}`}>
+                            <i class="fa fa-angle-left" />
+                        </a>
+                    </li>
+                    {this.renderPageDetail(this.state.totalPage)}
+                    <li class="page-item disabled">
+                        <a class="page-link" href={`${thisUrl}&page=${parseInt(this.state.page) + 1}`}>
+                            <i class="fa fa-angle-right" />
+                        </a>
+                    </li>
+                </ul>
+            )
+        }
+        else {
+            return (
+                <ul class="pagination mt-50 mb-70">
+                    <li class="page-item">
+                        <a class="page-link" href={`${thisUrl}&page=${parseInt(this.state.page) - 1}`}>
+                            <i class="fa fa-angle-left" />
+                        </a>
+                    </li>
+                    {this.renderPageDetail(this.state.totalPage)}
+                    <li class="page-item">
+                        <a class="page-link" href={`${thisUrl}&page=${parseInt(this.state.page) + 1}`}>
+                            <i class="fa fa-angle-right" />
+                        </a>
+                    </li>
+                </ul>
+            )
+        }
+
+    }
+
+    renderPageDetail = (totalPage) => {
+        let params = queryString.parse(this.props.location.search);
+        const { category, brand, subcategory, search, page } = params;
+        var isi = '';
+        if (category !== undefined) {
+            isi = `?category=${category}`;
+        }
+        else if (brand !== undefined) {
+            isi = `?brand=${brand}`;
+        }
+        else if (subcategory !== undefined) {
+            isi = `?subcategory=${subcategory}`;
+        }
+        else if (search !== undefined) {
+            isi = `?search=${search}`;
+        }
+        else {
+            isi = '?';
+        }
+        var thisUrl = this.props.location.pathname + isi;
+        var output = [];
+        for (var i = 1; i <= totalPage; i++) {
+            output.push(
+                <li class={this.state.page == i ? 'page-item active' : 'page-item'}>
+                    <a class="page-link" href={`${thisUrl}&page=${i}`}>{i}</a>
+                </li>
+            )
+        }
+        return output;
+    }
+
 
     render() {
         // if (this.state.data = '' || this.state.brand == '' || this.state.category == '' || this.state.subcategory == '') {
@@ -171,6 +359,7 @@ class Shop extends Component {
         //         </div>
         //     )
         // }
+
         return (
             <div>
                 {/* <!-- ##### Header Area Start ##### --> */}
@@ -180,6 +369,7 @@ class Shop extends Component {
                             <div class="col-12">
                                 <div class="page-title text-center">
                                     <h2>{this.renderTitle()}</h2>
+                                    <input type="button" value="Cek" onClick={() => console.log(this.state)} />
                                 </div>
                             </div>
                         </div>
@@ -241,31 +431,22 @@ class Shop extends Component {
                                                 {/* <!-- Sorting --> */}
                                                 <div class="product-sorting d-flex">
                                                     <p>Sort by:</p>
-                                                    <form
-                                                        action="#"
-                                                        method="get">
-                                                        <select
-                                                            name="select"
-                                                            id="sortByselect">
-                                                            <option value="value">
-                                                                Highest Rated
+                                                    <select
+                                                        name="select"
+                                                        id="sortByselect">
+                                                        <option value="value" onClick={this.sortNewest}>
+                                                            Newest
                                                             </option>
-                                                            <option value="value">
-                                                                Newest
+                                                        <option value="value" onClick={this.sortOldest}>
+                                                            Oldest
                                                             </option>
-                                                            <option value="value">
-                                                                Price: $$ - $
+                                                        <option value="value" onClick={this.sortLowPrice}>
+                                                            Low Price
                                                             </option>
-                                                            <option value="value">
-                                                                Price: $ - $$
+                                                        <option value="value" onClick={this.sortHighPrice}>
+                                                            High Price
                                                             </option>
-                                                        </select>
-                                                        <input
-                                                            type="submit"
-                                                            class="d-none"
-                                                            value=""
-                                                        />
-                                                    </form>
+                                                    </select>
                                                 </div>
                                             </div>
                                         </div>
@@ -277,43 +458,7 @@ class Shop extends Component {
                                 </div>
                                 {/* <!-- Pagination --> */}
                                 <nav aria-label="navigation">
-                                    <ul class="pagination mt-50 mb-70">
-                                        <li class="page-item">
-                                            <a class="page-link" href="#">
-                                                <i class="fa fa-angle-left" />
-                                            </a>
-                                        </li>
-                                        <li class="page-item">
-                                            <a class="page-link" href="#">
-                                                1
-                                            </a>
-                                        </li>
-                                        <li class="page-item">
-                                            <a class="page-link" href="#">
-                                                2
-                                            </a>
-                                        </li>
-                                        <li class="page-item">
-                                            <a class="page-link" href="#">
-                                                3
-                                            </a>
-                                        </li>
-                                        <li class="page-item">
-                                            <a class="page-link" href="#">
-                                                ...
-                                            </a>
-                                        </li>
-                                        <li class="page-item">
-                                            <a class="page-link" href="#">
-                                                21
-                                            </a>
-                                        </li>
-                                        <li class="page-item">
-                                            <a class="page-link" href="#">
-                                                <i class="fa fa-angle-right" />
-                                            </a>
-                                        </li>
-                                    </ul>
+                                    {this.renderPagination()}
                                 </nav>
                             </div>
                         </div>

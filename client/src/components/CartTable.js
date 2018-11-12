@@ -24,6 +24,26 @@ class CartTable extends Component {
         }
     };
 
+    deleteConfirm = (Id) => {
+        if (window.confirm('Are You sure want to delete this cart ?')) {
+            this.props.deleteCart(this.props.auth.idUser, Id);
+        }
+    }
+
+    numberWithCommas = (x) => {
+        return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+    }
+
+    convertTotalPrice = () => {
+        var total = parseInt(this.totalPrice());
+        var hasil = this.numberWithCommas(total);
+        if (total > 0) {
+            return hasil;
+        }
+        else {
+            return 0;
+        }
+    }
 
     renderCartTable = () => {
         if (this.props.cart.cart === []) {
@@ -35,24 +55,30 @@ class CartTable extends Component {
                     <li className="clearfix">
                         <img className="img" src={item.Img} alt={index} />
                         <span className="item-name">{item.Name}</span>
-                        <span className="item-price">Rp {item.Price}</span>
-                        <span style={{ marginRight: "5px" }} className="item-quantity">
-                            Qty:
-                        </span>
-                        <span class="_grid">
-                            <button className="btn btn-qty" style={{ height: "20px", width: "20px" }} onClick={() => this.props.updateQty(this.props.auth.idUser, item.IdCart, item.Quantities - 1)}>
-                                <span className="fa fa-minus" style={{ marginLeft: "-6.5px", marginTop: "-7.5px", position: "absolute" }} ></span>
-                            </button>
-                            <span style={{ margin: "3px" }}>{item.Quantities}</span>
-                            <button className="btn btn-qty" style={{ height: "20px", width: "20px" }} onClick={() => this.props.updateQty(this.props.auth.idUser, item.IdCart, item.Quantities + 1)}>
-                                <span className="fa fa-plus" style={{ marginLeft: "-6.5px", marginTop: "-7.5px", position: "absolute" }} ></span>
-                            </button>
-                        </span>
-                        <span>
-                            <button className="btn btn-danger" style={{ height: "20px", width: "20px", marginLeft: "5px" }} type="submit" onClick={() => this.props.deleteCart(this.props.auth.idUser, item.Id)}>
-                                <span className="fa fa-times" style={{ marginLeft: "-6.5px", marginTop: "-7.5px", position: "absolute" }} />
-                            </button>
-                        </span>
+                        <div className="d-flex justify-content-between">
+                            <div>
+                                <span className="item-price">Rp {this.numberWithCommas(item.Price * item.Quantities)}</span>
+                            </div>
+                            <div>
+                                <span style={{ marginRight: "5px" }} className="item-quantity">
+                                    Qty:
+                            </span>
+                                <span class="_grid">
+                                    <button className="btn btn-qty" style={{ height: "20px", width: "20px" }} onClick={() => this.props.updateQty(this.props.auth.idUser, item.IdCart, item.Quantities - 1)}>
+                                        <span className="fa fa-minus" style={{ marginLeft: "-6.5px", marginTop: "-7.5px", position: "absolute" }} ></span>
+                                    </button>
+                                    <span style={{ margin: "3px" }}> {item.Quantities} </span>
+                                    <button className="btn btn-qty" style={{ height: "20px", width: "20px" }} onClick={() => this.props.updateQty(this.props.auth.idUser, item.IdCart, item.Quantities + 1)}>
+                                        <span className="fa fa-plus" style={{ marginLeft: "-6.5px", marginTop: "-7.5px", position: "absolute" }} ></span>
+                                    </button>
+                                </span>
+                                <span>
+                                    <button className="btn btn-danger" style={{ height: "20px", width: "20px", marginLeft: "5px" }} type="submit" onClick={() => this.deleteConfirm(item.Id)}>
+                                        <span className="fa fa-times" style={{ marginLeft: "-6.5px", marginTop: "-7.5px", position: "absolute" }} />
+                                    </button>
+                                </span>
+                            </div>
+                        </div>
                     </li>
                 );
             });
@@ -61,17 +87,17 @@ class CartTable extends Component {
 
     render() {
         return (
-            <div className="container-cart">
-                <div className="shopping-cart">
+            <div className="container-cart" >
+                <div className="shopping-cart" style={{ width: "390px", maxHeight: "440px", overflowY: "scroll" }}>
                     <div className="shopping-cart-header">
                         <i className="fa fa-shopping-cart cart-icon" />
                         <span className="badge">
                             {this.props.cart.cart.length}
                         </span>
                         <div className="shopping-cart-total">
-                            <span className="lighter-text">Total:</span>
+                            <span className="lighter-text">Total: </span>
                             <span className="main-color-text">
-                                {this.totalPrice()}
+                                Rp {this.convertTotalPrice()}
                             </span>
                         </div>
                     </div>

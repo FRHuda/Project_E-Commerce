@@ -77,15 +77,18 @@ export const updateQty = (idUser, idCart, qty) => {
     }
 }
 
-export const submitOrder = (idUser, cart, billingAddress) => {
+export const submitOrder = (idUser, cart, billingAddress, totalPrice) => {
     return dispatch => {
         axios.post(`${API_URL_MONGODB}/addorderhistory`, {
             idUser,
             cart,
-            billingAddress
+            billingAddress,
+            totalPrice
         }).then(res => {
+            console.log('UPDATE SUCCESS');
             axios.delete(`${API_URL_MYSQL}/deletecartorder/${idUser}`)
                 .then(res => {
+                    console.log('deleteSuccess');
                     dispatch({
                         type: 'SUBMIT_SUCCESS'
                     })

@@ -23,6 +23,7 @@ class App extends Component {
   componentWillReceiveProps(newProps) {
     if (newProps.auth.username === "" && (this.props.auth.username !== newProps.auth.username)) {
       cookies.remove('login');
+      window.location.href = '/login';
     }
     else if (newProps.auth.username !== "" && (this.props.auth.username !== newProps.auth.username)) {
       cookies.set('login', newProps.auth.email, { path: '/' });

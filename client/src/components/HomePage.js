@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
-import CarouselProduct from './Carousel';
 import { connect } from 'react-redux';
 import { animateScroll as scroll } from 'react-scroll';
+import NewProduct from './NewProduct';
 import imageasus from '../Supports/image/asus_logo.png';
 import imageacer from '../Supports/image/acer_logo.png';
 import imagelenovo from '../Supports/image/lenovo_logo.png';
@@ -29,8 +29,7 @@ class HomePage extends Component {
                             <div style={{ marginRight: "650px" }} className="row h-100 align-items-center">
                                 <div className="col-12">
                                     <div className="hero-content">
-                                        <h6>asoss</h6>
-                                        <h2>New Collection</h2>
+                                        <h2>All Product</h2>
                                         <a href="/shop" className="btn essence-btn">Shop Now</a>
                                     </div>
                                 </div>
@@ -44,10 +43,10 @@ class HomePage extends Component {
                             <div className="row justify-content-center">
                                 {/* <!-- Single Catagory --> */}
                                 <div className="col-12 col-sm-6 col-md-4">
-                                    <a href="/shop?category=Laptop">
+                                    <a href="/shop?category=Computer">
                                         <div className="single_catagory_area d-flex align-items-center justify-content-center bg-img blaptop">
                                             <div className="catagory-content">
-                                                <a href="/shop?category=Laptop">Laptop</a>
+                                                <a href="/shop?category=Computer">Computer</a>
                                             </div>
                                         </div>
                                     </a>
@@ -77,8 +76,8 @@ class HomePage extends Component {
                     </div>
                 </div>
                 <div>
-                    <h1>Popular Product</h1>
-                    <CarouselProduct />
+                    <h1>New Product</h1>
+                    <NewProduct />
                 </div>
 
                 {/* <!-- ##### Brands Area Start ##### --> */}

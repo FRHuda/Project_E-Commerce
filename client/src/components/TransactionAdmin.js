@@ -14,7 +14,7 @@ class Transaction extends Component {
     state = { list: [] };
 
     componentWillMount() {
-        axios.get(`${API_URL_MONGODB}/orderhistory/${this.props.auth.idUser}`)
+        axios.get(`${API_URL_MONGODB}/alltransaction`)
             .then(data => {
                 this.setState({ list: data.data });
             })
@@ -29,7 +29,7 @@ class Transaction extends Component {
 
     renderDetail = () => {
         return this.state.list.map((item) => {
-            return <TransactionDetail item={item} />
+            return <TransactionDetail item={item} user={this.state.user} />
         })
     }
 
@@ -49,7 +49,6 @@ class Transaction extends Component {
                                 <div class="col-12">
                                     <div class="page-title text-center">
                                         <h2>Transactions</h2>
-                                        <input type="button" value="Cek" onClick={() => console.log(this.state.list)} />
                                     </div>
                                 </div>
                             </div>
