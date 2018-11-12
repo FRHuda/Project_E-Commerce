@@ -165,7 +165,6 @@ class Shop extends Component {
                                         <h6>{item.Name}</h6>
                                     </a>
                                     <p class="product-price">Rp {this.numberWithCommas(item.Price)}</p>
-                                    <h6>{item.Description}</h6>
                                     {/* <!-- Hover Content --> */}
                                     <div class="hover-content">
                                         {/* <!-- Add to Cart --> */}
