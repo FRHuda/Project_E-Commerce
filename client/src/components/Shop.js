@@ -8,7 +8,7 @@ import { API_URL_MYSQL } from '../Supports/api-url/apiurl';
 
 
 class Shop extends Component {
-    state = { data: [], dataRender: [], brand: [], category: [], subcategory: [], page: 1 };
+    state = { data: [], dataRender: [], brand: [], category: [], subcategory: [], subcategoryTampung: [], page: 1 };
 
 
     componentWillMount() {
@@ -49,6 +49,9 @@ class Shop extends Component {
         if (page !== undefined) {
             this.setState({ page: page });
         }
+        this.state.subcategory.map(subcategory => {
+            this.state.subcategoryTampung.push(subcategory.Name);
+        })
     }
 
     numberWithCommas = (x) => {
@@ -124,6 +127,17 @@ class Shop extends Component {
     }
 
     // RENDER FUNCTION
+
+    renderSubCategoryTampung = (id) => {
+        var output = '';
+        this.state.subcategory.map(subcategory => {
+            if (id == subcategory.Id) {
+                output = subcategory.Name;
+            }
+        })
+        return output;
+    }
+
     renderSingleProduct = () => {
         if (this.state.dataRender.length == 0) {
             return <h1>Please Wait</h1>
@@ -146,11 +160,12 @@ class Shop extends Component {
 
                                 {/* <!-- Product Description --> */}
                                 <div class="product-description">
-                                    <span>topshop</span>
+                                    <span>{this.renderSubCategoryTampung(item.SubCategoryId)}</span>
                                     <a href="single-product-details.html">
                                         <h6>{item.Name}</h6>
                                     </a>
                                     <p class="product-price">Rp {this.numberWithCommas(item.Price)}</p>
+                                    <h6>{item.Description}</h6>
                                     {/* <!-- Hover Content --> */}
                                     <div class="hover-content">
                                         {/* <!-- Add to Cart --> */}

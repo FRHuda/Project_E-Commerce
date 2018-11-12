@@ -310,8 +310,8 @@ class Profile extends Component {
                 <div className="dashboard-outer">
                     <div className="dashboard-sidebar">
                         {/* <!--     logo container --> */}
-                        <div className="dashboard-brand-outer">
-                            <img className="dashboard-brand" src="https://s33.postimg.org/bu4sa4nfz/door_champion_w.png" alt="" />
+                        <div style={{ padding: "20px" }}>
+                            <img className="rounded-circle" style={{ height: "150px", width: "150px" }} src="https://vignette.wikia.nocookie.net/rocklee/images/b/bb/Itachi.png/revision/latest?cb=20141115180733&path-prefix=pt-br" alt="" />
                         </div>
                         {/* <!--     logo container --> */}
                         <nav>
