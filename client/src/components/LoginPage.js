@@ -96,7 +96,7 @@ class LoginPage extends Component {
                                         </div>
                                     </fieldset>
                                     <div class="forms_buttons">
-                                        <button type="button" class="forms_buttons-forgot">Forgot password?</button>
+                                        <a type="button" class="forms_buttons-forgot" href="/forgetpassword">Forgot password?</a>
                                         {this.renderButtonLogin()}
                                     </div>
                                     <div style={{ color: "red" }}>

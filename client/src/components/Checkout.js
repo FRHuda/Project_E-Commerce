@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Redirect } from 'react-router-dom';
 import { submitOrder } from '../Actions';
 
 // IMPORT CSS
@@ -14,17 +13,6 @@ class Checkout extends Component {
     }
 
     submitOrder = () => {
-        var via = '';
-        if (document.getElementById("radio-1").checked === true) {
-            via = 'Cash';
-        }
-        else if (document.getElementById("radio-2").checked === true) {
-            via = 'Credit';
-        }
-        else {
-            alert('You must choose via Cash or Credit');
-            return;
-        }
         if (
             this.refs.name.value === '' ||
             this.refs.phone.value === '' ||
@@ -43,18 +31,14 @@ class Checkout extends Component {
 
         if (window.confirm('Are You sure want to submit your order ?')) {
 
-            const dateNow = `${new Date().getDate()}-${new Date().getMonth()}-${new Date().getFullYear()}`;
-
             const billingAddress = {
-                name: this.refs.name.value,
-                phone: this.refs.phone.value,
-                address: this.refs.address.value,
-                postcode: this.refs.postcode.value,
-                city: this.refs.city.value,
-                province: this.refs.province.value,
-                email: this.refs.email.value,
-                via: via,
-                date: dateNow
+                Name: this.refs.name.value,
+                Phone: this.refs.phone.value,
+                Address: this.refs.address.value,
+                PostCode: this.refs.postcode.value,
+                City: this.refs.city.value,
+                Province: this.refs.province.value,
+                Email: this.refs.email.value
             }
 
             this.props.submitOrder(this.props.auth.idUser, this.props.cart.cart, billingAddress, this.totalPrice());
@@ -96,7 +80,7 @@ class Checkout extends Component {
     }
 
     renderPhone = () => {
-        var output = `+62${this.props.auth.phone}`;
+        var output = `0${this.props.auth.phone}`;
         if (this.props.auth.Phone === null) {
             return;
         }
@@ -209,7 +193,7 @@ class Checkout extends Component {
                                             <li><span>Total</span> <span>Rp {this.numberWithCommas(this.totalPrice())}</span></li>
                                         </ul>
 
-                                        <div className="d-flex">
+                                        {/* <div className="d-flex">
                                             <div class="radio">
                                                 <input id="radio-1" name="radio" type="radio" />
                                                 <label for="radio-1" class="radio-label">Cash</label>
@@ -218,7 +202,7 @@ class Checkout extends Component {
                                                 <input id="radio-2" name="radio" type="radio" />
                                                 <label for="radio-2" class="radio-label">Credit</label>
                                             </div>
-                                        </div>
+                                        </div> */}
 
                                         <input type="button" className="btn essence-btn" value="Submit Order" onClick={this.submitOrder} />
                                     </div>
@@ -266,7 +250,7 @@ class Checkout extends Component {
                                                 </div>
                                                 <div class="col-6 mb-3">
                                                     <label for="phone_number">Phone No <span>*</span></label>
-                                                    <input type="number" ref="phone" class="form-control" id="phone_number" defaultValue={`+62${this.props.auth.phone}`} min="0" />
+                                                    <input type="text" ref="phone" class="form-control" id="phone_number" defaultValue={`0${this.props.auth.phone}`} min="0" />
                                                 </div>
                                                 <div class="col-12 mb-3">
                                                     <label for="street_address">Address <span>*</span></label>
@@ -282,7 +266,7 @@ class Checkout extends Component {
                                                 </div>
                                                 <div class="col-6 mb-3">
                                                     <label for="state">Province <span>*</span></label>
-                                                    <input type="text" ref="province" class="form-control" defaultvalue={this.props.address.Province} id="state" />
+                                                    <input type="text" ref="province" class="form-control" defaultValue={this.props.address.Province} id="state" />
                                                 </div>
                                                 <div class="col-12 mb-4">
                                                     <label for="email_address">Email Address <span>*</span></label>

@@ -11,6 +11,8 @@ import ProductDetail from './ProductDetail';
 import Checkout from './Checkout';
 import Transaction from './Transaction';
 import Profile from './Profile';
+import CobaUpload from './CobaUpload';
+import ForgetPassword from './ForgetPassword';
 
 
 
@@ -27,6 +29,8 @@ class AppInit extends Component {
                 <Route exact path='/productdetail' component={ProductDetail} />
                 <Route exact path='/checkout' component={Checkout} />
                 <Route exact path='/transaction' component={Transaction} />
+                <Route exact path='/cobaupload' component={CobaUpload} />
+                <Route exact path='/forgetpassword' component={ForgetPassword} />
             </div>
         )
     }

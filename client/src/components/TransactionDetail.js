@@ -1,14 +1,19 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { addState } from '../Actions';
+import { addState, addStateInvoiceUpload } from '../Actions';
 // IMPORT CSS
 import '../Supports/css/components/popup.css';
 
 
 class TransactionDetail extends Component {
 
+
     open = (item) => {
         this.props.addState(item);
+    }
+
+    openUploadInvoice = (id, status) => {
+        this.props.addStateInvoiceUpload(id, status);
     }
 
     numberWithCommas = (x) => {
@@ -16,18 +21,37 @@ class TransactionDetail extends Component {
     }
 
     render() {
-        return (
-            <tr onClick={() => this.open(this.props.item.cart)} >
-                <td>{this.props.item.billingAddress.date}</td>
-                <td>{this.props.item.billingAddress.name}</td>
-                <td>{this.props.item.billingAddress.address}</td>
-                <td>{this.props.item.billingAddress.city}, {this.props.item.billingAddress.province}</td>
-                <td>{this.props.item.billingAddress.postcode}</td>
-                <td>{this.props.item.billingAddress.phone}</td>
-                <td>Rp {this.numberWithCommas(this.props.item.totalPrice)}</td>
-                <td>{this.props.item.billingAddress.via}</td>
-            </tr>
-        )
+        if (this.props.item.Status === 'Waiting Payment') {
+            return (
+                <tr onClick={() => this.open(this.props.detail)} >
+                    <td>{this.props.item.Date}</td>
+                    <td>{this.props.item.Name}</td>
+                    <td>{this.props.item.Address}</td>
+                    <td>{this.props.item.City}, {this.props.item.Province}</td>
+                    <td>{this.props.item.PostCode}</td>
+                    <td>{this.props.item.Phone}</td>
+                    <td>Rp {this.numberWithCommas(this.props.item.TotalPrice)}</td>
+                    <td>
+                        {this.props.item.Status}
+                        <input type="button" value="Paying" className="btn btn-primary" onClick={() => this.openUploadInvoice(this.props.item.Id)} />
+                    </td>
+                </tr>
+            )
+        }
+        else {
+            return (
+                <tr onClick={() => this.open(this.props.detail)} >
+                    <td>{this.props.item.Date}</td>
+                    <td>{this.props.item.Name}</td>
+                    <td>{this.props.item.Address}</td>
+                    <td>{this.props.item.City}, {this.props.item.Province}</td>
+                    <td>{this.props.item.PostCode}</td>
+                    <td>{this.props.item.Phone}</td>
+                    <td>Rp {this.numberWithCommas(this.props.item.TotalPrice)}</td>
+                    <td>{this.props.item.Status}</td>
+                </tr>
+            )
+        }
     }
 }
 
@@ -37,4 +61,4 @@ const mapStateToProps = state => {
     return { transaction };
 }
 
-export default connect(mapStateToProps, { addState })(TransactionDetail);
+export default connect(mapStateToProps, { addState, addStateInvoiceUpload })(TransactionDetail);

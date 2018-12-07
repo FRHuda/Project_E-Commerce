@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { API_URL_MYSQL, API_URL_MONGODB } from '../Supports/api-url/apiurl';
+import { API_URL_MYSQL } from '../Supports/api-url/apiurl';
 
 // ACTION LOGIN REGISTER PAGE
 

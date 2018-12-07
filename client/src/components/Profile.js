@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Redirect } from 'react-router-dom';
 import { updateAkun, addAddress, updateAddress } from '../Actions';
+import { API_URL_MYSQL } from '../Supports/api-url/apiurl';
+import axios from 'axios';
 import Transaction from './Transaction';
 
 import '../Supports/css/components/profile.css';
@@ -73,6 +75,34 @@ class Profile extends Component {
         }
     }
 
+    editPassword = () => {
+        var realpass = '';
+        axios.get(`${API_URL_MYSQL}/getpassword/${this.props.auth.idUser}`)
+            .then(response => {
+                realpass = response.data[0].Pass;
+                var pass = prompt('Input your recent password');
+                if (pass === realpass) {
+                    var newpassword = prompt('Enter your New Password');
+                    axios.put(`${API_URL_MYSQL}/changepassword/${this.props.auth.idUser}`, {
+                        newPassword: newpassword
+                    })
+                        .then(response => {
+                            alert('Change Password Success!');
+                        })
+                        .catch(err => {
+                            console.log(err);
+                            alert(err);
+                        })
+                }
+                else {
+                    alert(`Wrong Password`);
+                }
+            })
+            .catch(err => {
+                console.log(err);
+            });
+    }
+
     renderPhone = () => {
         var output = '+62';
         if (this.props.auth.Phone === null) {
@@ -135,7 +165,11 @@ class Profile extends Component {
                         </div>
                         <div className="col-sm-4">
                             <h4 className="main-titles">Password</h4>
-                            <p>********</p>
+                            <div className='d-flex'>
+                                <span className="col-md-5" />
+                                <p>********</p>
+                                <button type="button" className="btn btn-default" onClick={this.editPassword}><span className="fa fa-edit"></span> Edit</button>
+                            </div>
                         </div>
                     </div>
                 </div>

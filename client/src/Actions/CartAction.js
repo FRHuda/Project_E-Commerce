@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { API_URL_MYSQL, API_URL_MONGODB } from '../Supports/api-url/apiurl';
+import { API_URL_MYSQL } from '../Supports/api-url/apiurl';
 
 export const showCart = idUser => {
     return dispatch => {
@@ -47,7 +47,7 @@ export const addToCart = (idUser, idProduct) => {
 export const deleteCart = (idUser, idProduct) => {
     return dispatch => {
         axios
-            .delete(`${API_URL_MYSQL}/deletecart?iduser=${idUser}&idproduct=${idProduct}`)
+            .put(`${API_URL_MYSQL}/deletecart?iduser=${idUser}&idproduct=${idProduct}`)
             .then(res => {
                 alert('Delete from Cart Success');
                 dispatch({
@@ -79,16 +79,16 @@ export const updateQty = (idUser, idCart, qty) => {
 
 export const submitOrder = (idUser, cart, billingAddress, totalPrice) => {
     return dispatch => {
-        axios.post(`${API_URL_MONGODB}/addorderhistory`, {
+        axios.post(`${API_URL_MYSQL}/addorderhistory`, {
             idUser,
             cart,
             billingAddress,
             totalPrice
         }).then(res => {
             console.log('UPDATE SUCCESS');
-            axios.delete(`${API_URL_MYSQL}/deletecartorder/${idUser}`)
+            axios.put(`${API_URL_MYSQL}/checkoutcartorder/${idUser}`)
                 .then(res => {
-                    console.log('deleteSuccess');
+                    console.log('CheckoutSuccess');
                     dispatch({
                         type: 'SUBMIT_SUCCESS'
                     })

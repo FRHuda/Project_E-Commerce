@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import axios from 'axios';
-import { Redirect } from 'react-responsive-carousel';
 import { connect } from 'react-redux';
 import { API_URL_MYSQL } from '../Supports/api-url/apiurl';
 import { addToCart } from '../Actions';
@@ -40,9 +39,9 @@ class NewProduct extends Component {
                         <a href={`/productdetail?productId=${item.Id}`}>
                             <div class="product-img" >
                                 {/* <img src={require('../Supports/image/acer-nitro-5.jpg')} alt=""/> */}
-                                <img src={item.Img} alt="" style={{ height: "250px", width: "300px" }} />
+                                <img src={item.Img} alt="" key={item.Id} style={{ height: "250px", width: "300px" }} />
                                 {/* <!-- Hover Thumb --> */}
-                                <img class="hover-img" style={{ borderStyle: "outset", height: "250px", width: "300px", marginLeft: "85px" }} src={item.Img} alt="" />
+                                <img class="hover-img" style={{ borderStyle: "outset", height: "250px", width: "300px", marginLeft: "85px" }} src={item.Img} key={`img${item.Id}`} alt="" />
                             </div>
                         </a>
 

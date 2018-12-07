@@ -53,7 +53,7 @@ class Header extends Component {
     // RENDER FUNCTION
 
     renderTabProfile = () => {
-        if (this.props.auth.statusId === 1) {
+        if (this.props.auth.statusId == 1) {
             return (
                 <UncontrolledDropdown nav inNavbar>
                     <DropdownToggle className="btn btn-primary" nav>
@@ -94,7 +94,7 @@ class Header extends Component {
 
     renderSubCategory = (id) => {
         return this.state.subcategory.map(item => {
-            if (item.CategoryId === id) {
+            if (item.CategoryId == id) {
                 return (
                     <DropdownItem href={`/shop?subcategory=${item.Name}`}>{item.Name}</DropdownItem>
                 )
@@ -211,41 +211,23 @@ class Header extends Component {
                                 <DropdownMenu style={{ marginLeft: '-65px', width: '1520px' }}>
                                     <div className="d-flex">
                                         <div className="col-3">
-                                            <div Header className="justify-content-center d-flex">Brand</div>
+                                            <div Header className="justify-content-center d-flex">Computer</div>
                                             <div class="dropdown-divider" />
-                                            <DropdownItem href="/shop?brand=Asus">
-                                                Asus
-                                            </DropdownItem>
-                                            <DropdownItem href="/shop?brand=Acer">
-                                                Acer
-                                            </DropdownItem>
-                                            <DropdownItem href="/shop?brand=MSI">
-                                                MSI
-                                            </DropdownItem>
+                                            {this.renderSubCategory(1)}
                                         </div>
                                         <div className="col-3">
                                             <div Header className="justify-content-center d-flex">Component</div>
                                             <div class="dropdown-divider" />
-                                            <DropdownItem href='/shop?subcategory=HardDisk'>
-                                                HardDisk
-                                            </DropdownItem>
-                                            <DropdownItem href='/shop?subcategory=VGA'>
-                                                VGA
-                                            </DropdownItem>
-                                            <DropdownItem href='/shop?subcategory=RAM'>
-                                                RAM
-                                            </DropdownItem>
+                                            {this.renderSubCategory(2)}
                                         </div>
                                         <div className="col-3">
                                             <div Header className="justify-content-center d-flex">Accecories</div>
                                             <div class="dropdown-divider" />
-                                            <DropdownItem>Charger</DropdownItem>
-                                            <DropdownItem>Headphone</DropdownItem>
-                                            <DropdownItem>Power Bank</DropdownItem>
+                                            {this.renderSubCategory(3)}
                                         </div>
-                                        <div className="col-3">
-                                            <img src="https://images-na.ssl-images-amazon.com/images/I/41KIZ8g7gFL.jpg" alt="" />
-                                        </div>
+                                        {/* <div className="col-3">
+                                                <img src="https://images-na.ssl-images-amazon.com/images/I/41KIZ8g7gFL.jpg" alt="" />
+                                            </div> */}
                                     </div>
                                 </DropdownMenu>
                             </UncontrolledDropdown>

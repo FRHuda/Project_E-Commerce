@@ -1,19 +1,31 @@
 const express = require('express');
 const fileUpload = require('express-fileupload');
+const nodemailer = require('nodemailer');
 var bodyParser = require('body-parser');
 const cors = require('cors');
 const mysql = require('mysql');
 
 var app = express();
 const port = 1997;
-const portMongodb = 2018;
+// const portMongodb = 2018;
 
-var url = bodyParser.urlencoded({ extended: false });
+var transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+        user: 'zatoichi159@gmail.com',
+        pass: 'rylwtzhkcmilzjvd'
+    },
+    tls: {
+        rejectUnauthorized: false
+    }
+})
+
+var url = bodyParser.urlencoded({ extended: false, limit: '50mb', parameterLimit: 1000000 });
 
 app.use(cors());
 app.use(url);
-app.use(bodyParser.json());
-app.use(fileUpload());
+app.use(bodyParser.json({ limit: '50mb' }));
+app.use(fileUpload({ limit: { fileSize: 50 * 1024 * 1024 } }));
 
 app.set('view engine', 'ejs');
 
@@ -88,6 +100,26 @@ app.put('/updateakun/:id', (req, res) => {
             }
             res.send(results1);
         })
+    })
+})
+
+
+// CHANGE PASSWORD
+
+app.get('/getpassword/:id', (req, res) => {
+    var sql = `SELECT Pass FROM akun WHERE Id=${req.params.id}`;
+    conn.query(sql, (err, results) => {
+        if (err) throw err;
+        res.send(results);
+    })
+})
+
+app.put('/changepassword/:id', (req, res) => {
+    const { newPassword } = req.body;
+    var sql = `UPDATE akun SET Pass='${newPassword}' WHERE Id=${req.params.id}`;
+    conn.query(sql, (err, results) => {
+        if (err) throw err;
+        res.send(results);
     })
 })
 
@@ -206,7 +238,7 @@ app.get('/getnewproduct', (req, res) => {
 
 app.get('/cart/:idUser', (req, res) => {
     const { idUser } = req.params;
-    var sql = `SELECT p.*, c.Quantities, c.Id as IdCart FROM product p join cart c on p.Id = c.ProductId WHERE c.AkunId=${idUser}`;
+    var sql = `SELECT p.*, c.Quantities, c.Id as IdCart FROM product p join cart c on p.Id = c.ProductId WHERE c.AkunId=${idUser} &&  c.Status='On Cart'`;
     if (idUser === 0) {
         console.log('Kosong');
     }
@@ -223,6 +255,7 @@ app.post('/addtocart', (req, res) => {
         ProductId: idProduct,
         Quantities: 1,
         Date: new Date(),
+        Status: 'On Cart'
     };
 
     if (idUser === 0) {
@@ -240,7 +273,7 @@ app.post('/addtocart', (req, res) => {
                 var quantsql = `UPDATE cart SET Quantities=${quantity + 1} WHERE AkunId=${idUser} && ProductId=${idProduct}`;
                 conn.query(quantsql, (err, results) => {
                     if (err) throw err;
-                    var sql1 = `SELECT p.*, c.Quantities, c.Id as IdCart FROM product p join cart c on p.Id = c.ProductId WHERE c.AkunId=${idUser}`;
+                    var sql1 = `SELECT p.*, c.Quantities, c.Id as IdCart FROM product p join cart c on p.Id = c.ProductId WHERE c.AkunId=${idUser} &&  c.Status='On Cart'`;
                     conn.query(sql1, (err1, results1) => {
                         if (err1) throw err1;
                         res.send(results1);
@@ -251,7 +284,7 @@ app.post('/addtocart', (req, res) => {
                 var sql = `INSERT INTO cart SET ?`;
                 conn.query(sql, data, (err, results) => {
                     if (err) throw err;
-                    var sql1 = `SELECT p.*, c.Quantities, c.Id as IdCart FROM product p join cart c on p.Id = c.ProductId WHERE c.AkunId=${idUser}`;
+                    var sql1 = `SELECT p.*, c.Quantities, c.Id as IdCart FROM product p join cart c on p.Id = c.ProductId WHERE c.AkunId=${idUser} &&  c.Status='On Cart'`;
                     conn.query(sql1, (err1, results1) => {
                         if (err1) throw err1;
                         res.send(results1);
@@ -262,12 +295,12 @@ app.post('/addtocart', (req, res) => {
     }
 });
 
-app.delete('/deletecart', (req, res) => {
+app.put('/deletecart', (req, res) => {
     const { iduser, idproduct } = req.query;
-    var sql = `DELETE FROM cart WHERE AkunId=${iduser} && ProductId=${idproduct}`;
+    var sql = `UPDATE cart SET Status ='Deleted' WHERE AkunId=${iduser} && ProductId=${idproduct}`;
     conn.query(sql, (err, results) => {
         if (err) throw err;
-        var sql1 = `SELECT p.*, c.Quantities, c.Id as IdCart FROM product p join cart c on p.Id = c.ProductId WHERE c.AkunId=${iduser}`;
+        var sql1 = `SELECT p.*, c.Quantities, c.Id as IdCart FROM product p join cart c on p.Id = c.ProductId WHERE c.AkunId=${iduser} &&  c.Status='On Cart'`;
         conn.query(sql1, (err1, results1) => {
             if (err1) throw err1;
             res.send(results1);
@@ -281,7 +314,7 @@ app.put(`/qty/:idCart`, (req, res) => {
     if (qty !== 0) {
         conn.query(sql, (err, results) => {
             if (err) throw err;
-            var sql1 = `SELECT p.*, c.Quantities, c.Id as IdCart FROM product p join cart c on p.Id = c.ProductId WHERE c.AkunId=${idUser}`;
+            var sql1 = `SELECT p.*, c.Quantities, c.Id as IdCart FROM product p join cart c on p.Id = c.ProductId WHERE c.AkunId=${idUser} &&  c.Status='On Cart'`;
             conn.query(sql1, (err1, results1) => {
                 if (err1) throw err1;
                 res.send(results1);
@@ -290,8 +323,8 @@ app.put(`/qty/:idCart`, (req, res) => {
     }
 })
 
-app.delete('/deletecartorder/:idUser', (req, res) => {
-    var sql = `DELETE FROM cart WHERE AkunId=${req.params.idUser}`;
+app.put('/checkoutcartorder/:idUser', (req, res) => {
+    var sql = `UPDATE cart SET Status ='Checkout' WHERE AkunId=${req.params.idUser} && Status ='On Cart'`;
     conn.query(sql, (err, results) => {
         if (err) throw err;
         res.send(results);
@@ -299,36 +332,70 @@ app.delete('/deletecartorder/:idUser', (req, res) => {
 })
 
 
-// BACKEND MONGODB TRANSACTION HISTORY
+// BACKEND TRANSACTION HISTORY
 
-const app1 = express();
-const MongoClient = require('mongodb').MongoClient;
-var urlMongodb = 'mongodb://huda:huda123@ds255539.mlab.com:55539/ecommercehuda';
+// const app1 = express();
+// const MongoClient = require('mongodb').MongoClient;
+// var urlMongodb = 'mongodb://huda:huda123@ds255539.mlab.com:55539/ecommercehuda';
 
-app1.use(cors());
-app1.use(bodyParser.json());
+// app1.use(cors());
+// app1.use(bodyParser.json());
 
 
-app1.get('/orderhistory/:idUser', (req, res) => {
-    MongoClient.connect(urlMongodb, (err, db) => {
-        collection = db.collection('orderhistory');
-        collection.find({ idUser: parseInt(req.params.idUser) }).toArray((err1, result) => {
-            db.close();
-            res.send(result);
-        })
+app.get(`/transaction/:idUser`, (req, res) => {
+    var sql = `SELECT * FROM transaction WHERE UserId=${req.params.idUser}`;
+    conn.query(sql, (err, results) => {
+        if (err) throw err;
+        res.send(results);
+    })
+})
+app.get(`/transactiondetail/:idUser`, (req, res) => {
+    var sql = `SELECT * FROM transactiondetail WHERE UserId=${req.params.idUser}`;
+    conn.query(sql, (err, results) => {
+        if (err) throw err;
+        res.send(results);
     })
 })
 
-app1.post('/addorderhistory', (req, res) => {
-    MongoClient.connect(urlMongodb, (err, db) => {
-        collection = db.collection('orderhistory');
-        collection.insertMany(
-            [req.body],
-            (err, result) => {
-                db.close();
-                res.send(result);
+app.post(`/addorderhistory`, (req, res) => {
+    const { idUser, cart, billingAddress, totalPrice } = req.body;
+    var data = {
+        UserId: idUser,
+        Name: billingAddress.Name,
+        Phone: billingAddress.Phone,
+        Address: billingAddress.Address,
+        PostCode: billingAddress.PostCode,
+        City: billingAddress.City,
+        Province: billingAddress.Province,
+        Email: billingAddress.Email,
+        TotalPrice: totalPrice,
+        Status: "Waiting Payment",
+        Date: new Date()
+    }
+    var sql = `INSERT INTO transaction SET ?`;
+    conn.query(sql, data, (err, results) => {
+        if (err) {
+            throw err;
+        }
+        for (var i = 0; i < cart.length; i++) {
+            var data1 = {
+                UserId: idUser,
+                TransactionId: results.insertId,
+                Name: cart[i].Name,
+                CategoryId: cart[i].CategoryId,
+                SubCategoryId: cart[i].SubCategoryId,
+                Brand: cart[i].Brand,
+                Description: cart[i].Description,
+                Img: cart[i].Img,
+                Price: cart[i].Price,
+                Quantities: cart[i].Quantities
             }
-        )
+            var sql1 = `INSERT INTO transactiondetail SET ?`;
+            conn.query(sql1, data1, (err1, results1) => {
+                if (err1) throw err1;
+            })
+        }
+        res.send('Success');
     })
 })
 
@@ -517,17 +584,138 @@ app.delete('/product/:id', (req, res) => {
 })
 
 
-app1.get('/alltransaction', (req, res) => {
-    MongoClient.connect(urlMongodb, (err, db) => {
-        collection = db.collection('orderhistory');
-        collection.find({}).toArray((err1, result) => {
-            db.close();
-            res.send(result);
-        })
+app.get('/alltransaction', (req, res) => {
+    var sql = `SELECT * FROM transaction`;
+    conn.query(sql, (err, results) => {
+        if (err) throw err;
+        res.send(results);
+    })
+})
+app.get('/alltransactiondetail', (req, res) => {
+    var sql = `SELECT * FROM transactiondetail`;
+    conn.query(sql, (err, results) => {
+        if (err) throw err;
+        res.send(results);
     })
 })
 
 
+// FILE UPLOAD TRANSACTION
+
+app.post('/upload/:transactionId', (req, res) => {
+    let imageFile = req.files.file;
+
+    imageFile.mv(`../client/src/Supports/InvoiceImage/${req.params.transactionId}.jpg`, function (err) {
+        if (err) {
+            return res.status(500).send(err);
+        }
+
+        // res.json({ file: `imageupload/cobagih.jpg` });
+    });
+
+    var data = {
+        TransactionId: req.params.transactionId,
+        Name: req.params.transactionId
+    }
+    var sql = `INSERT INTO invoice SET ?`;
+    conn.query(sql, data, (err, results) => {
+        if (err) throw err;
+    })
+
+    var sql1 = `UPDATE transaction SET Status='Paid, Waiting Confirmation' WHERE Id=${req.params.transactionId}`;
+    conn.query(sql1, (err1, results1) => {
+        if (err1) throw err1;
+        res.send('Success');
+    })
+
+})
+
+
+// CHANGING STATUS OF TRANSACTION
+
+app.put('/confirmpayment/:transactionId', (req, res) => {
+    var sql = `UPDATE transaction SET Status='Transaction Done' WHERE Id=${req.params.transactionId}`;
+    conn.query(sql, (err, results) => {
+        if (err) throw err;
+        res.send('Cussess');
+    })
+})
+
+app.put('/rejectpayment/:transactionId', (req, res) => {
+    var sql = `UPDATE transaction SET Status='Payment Invalid, Transaction Rejected' WHERE Id=${req.params.transactionId}`;
+    conn.query(sql, (err, results) => {
+        if (err) throw err;
+        res.send('Cussess');
+    })
+})
+
+
+// SEND EMAIL
+
+app.post('/sendmail', (req, res) => {
+    var { email } = req.body;
+
+    var mailOptions = {
+        from: 'H E-Commerce <zatoichi159@gmail.com>',
+        to: `${email}`,
+        subject: 'Testing Nodemailer',
+        // text: 'Haloo!!',
+        html: ` <div>
+                    <h1>Ini Adalah Email</h1>
+                    <input type='button' value='Cek' />
+                </div>`
+    }
+
+    transporter.sendMail(mailOptions, (err, res) => {
+        if (err) {
+            console.log(err);
+            res.send('Error!');
+        }
+        else {
+            console.log('Email Suskes Terkirim!');
+            res.send('Email Suskses Terkirim!');
+        }
+    })
+    res.send('Email Sukses Terkirim!');
+})
+
+app.post('/forgetpassword', (req, res) => {
+    var { email } = req.body;
+    var angka = Math.round(Math.random() * (Math.pow(10, 10)));
+
+    var mailOptions = {
+        from: 'H E-Commerce <zatoichi159@gmail.com>',
+        to: `${email}`,
+        subject: 'New Password',
+        // text: 'Haloo!!',
+        html: ` <div>
+                    <table>
+                        <tr>Email           : ${email}</tr>
+                        <tr>New Password    : ${angka}</tr>
+                    </table>
+                </div>`
+    }
+
+    transporter.sendMail(mailOptions, (err, res) => {
+        if (err) {
+            console.log(err);
+            res.send('Error!');
+        }
+        else {
+            console.log('Email Suskes Terkirim!');
+            res.send('Email Sukses Terkirim!');
+        }
+    })
+
+    var sql = `UPDATE akun SET Pass=${angka} WHERE Email='${email}'`;
+    conn.query(sql, (err, results) => {
+        if (err) throw err;
+        console.log(results);
+        res.send(results);
+    })
+
+})
+
 
 app.listen(port, () => console.log(`Database MYSQL listening on port ${port}!`));
-app1.listen(portMongodb, () => console.log(`Database MongoDb listening on portMongodb ${portMongodb}!`));
+// app1.listen(portMongodb, () => console.log(`Database MongoDb listening on portMongodb ${portMongodb}!`));

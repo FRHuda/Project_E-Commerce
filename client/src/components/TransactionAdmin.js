@@ -1,22 +1,32 @@
 import React, { Component } from 'react';
 import axios from 'axios';
 import { connect } from 'react-redux';
-import { API_URL_MONGODB } from '../Supports/api-url/apiurl';
+import { API_URL_MONGODB, API_URL_MYSQL } from '../Supports/api-url/apiurl';
 import { closePopUp } from '../Actions';
-import TransactionDetail from './TransactionDetail';
+import TransactionDetail from './TransactionDetailAdmin';
 import TransactionCartDetail from './TransactionCartDetail';
+import ConfirmInvoice from './ConfirmInvoice';
+
 
 // IMPORT CSS
 import '../Supports/css/components/transaction.css';
 import '../Supports/css/components/popup.css';
 
 class Transaction extends Component {
-    state = { list: [] };
+    state = { transaction: [], transactiondetail: [] };
 
     componentWillMount() {
-        axios.get(`${API_URL_MONGODB}/alltransaction`)
+        axios.get(`${API_URL_MYSQL}/alltransaction`)
             .then(data => {
-                this.setState({ list: data.data });
+                this.setState({ transaction: data.data });
+            })
+            .catch(err => {
+                console.log(err);
+            })
+
+        axios.get(`${API_URL_MYSQL}/alltransactiondetail`)
+            .then(data => {
+                this.setState({ transactiondetail: data.data });
             })
             .catch(err => {
                 console.log(err);
@@ -28,8 +38,15 @@ class Transaction extends Component {
     }
 
     renderDetail = () => {
-        return this.state.list.map((item) => {
-            return <TransactionDetail item={item} user={this.state.user} />
+        return this.state.transaction.map((transaction) => {
+            var detail = [];
+            this.state.transactiondetail.map(tdetail => {
+                if (tdetail.TransactionId === transaction.Id) {
+                    detail.push(tdetail);
+                }
+            })
+
+            return <TransactionDetail item={transaction} detail={detail} />
         })
     }
 
@@ -37,6 +54,10 @@ class Transaction extends Component {
         return this.props.transaction.item.map(item => {
             return <TransactionCartDetail item={item} />
         })
+    }
+
+    renderConfirmInvoice = () => {
+        return <ConfirmInvoice />
     }
 
     render() {
@@ -88,7 +109,7 @@ class Transaction extends Component {
                                     <th>Post Code</th>
                                     <th>Phone Number</th>
                                     <th>Total Price</th>
-                                    <th>Payment</th>
+                                    <th>Status</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -114,6 +135,16 @@ class Transaction extends Component {
                                 </div>
                             </div>
                         </div>
+
+                        {/* POP UP INVOICE*/}
+                        <div class={`pop-up ${this.props.invoice.open}`} style={{ height: "600px" }}>
+                            <div class="content">
+                                <div class="container">
+                                    <span class="close" onClick={this.close}>close</span>
+                                    {this.renderConfirmInvoice()}
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             )
@@ -124,7 +155,8 @@ class Transaction extends Component {
 const mapStateToProps = state => {
     const auth = state.auth;
     const transaction = state.transaction;
-    return { auth, transaction };
+    const invoice = state.invoice;
+    return { auth, transaction, invoice };
 };
 
 export default connect(mapStateToProps, { closePopUp })(Transaction);
